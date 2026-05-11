@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IAM Whoami | Cloud and IT Career Training</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #00C48C;
+    --green-dim: rgba(0,196,140,0.12);
+    --green-border: rgba(0,196,140,0.3);
+    --bg: #0A100D;
+    --bg2: #101A14;
+    --bg3: #162019;
+    --text: #F0F0EE;
+    --muted: #7A8A80;
+    --card-border: rgba(255,255,255,0.07);
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.1rem 2.5rem;
+    background: rgba(10,16,13,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .nav-logo {
+    display: flex; align-items: center; gap: 0.55rem;
+    text-decoration: none;
+  }
+
+  .nav-logo .iam { font-family: var(--mono); font-weight: 700; font-size: 1.15rem; color: var(--green); }
+  .nav-logo .whoami { font-family: var(--mono); font-weight: 400; font-size: 1.15rem; color: var(--text); }
+
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    text-decoration: none; color: var(--muted); font-size: 0.9rem; font-weight: 400;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--green); }
+
+  .nav-cta {
+    background: transparent; border: 1px solid var(--green-border); color: var(--green);
+    font-family: var(--sans); font-size: 0.88rem; font-weight: 500;
+    padding: 0.5rem 1.2rem; border-radius: 4px; cursor: pointer; text-decoration: none;
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: var(--green-dim); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 8rem 2.5rem 5rem;
+    position: relative; overflow: hidden;
+  }
+
+  .hero-grid {
+    position: absolute; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(var(--card-border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--card-border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 40%, transparent 100%);
+  }
+
+  .hero-glow {
+    position: absolute; top: 20%; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 400px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0,196,140,0.08) 0%, transparent 70%);
+    z-index: 0;
+  }
+
+  .hero-inner {
+    position: relative; z-index: 1;
+    max-width: 780px; margin: 0 auto; text-align: center;
+  }
+
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--mono); font-size: 0.78rem; color: var(--green);
+    border: 1px solid var(--green-border); border-radius: 2px;
+    padding: 0.3rem 0.8rem; margin-bottom: 2rem;
+    background: var(--green-dim);
+  }
+
+  .hero-tag::before { content: '$'; opacity: 0.6; }
+
+  h1 {
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 700; line-height: 1.18;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+
+  h1 .accent { color: var(--green); }
+
+  .hero-sub {
+    font-size: 1.1rem; color: var(--muted); max-width: 560px;
+    margin: 0 auto 2.5rem; font-weight: 300; line-height: 1.8;
+  }
+
+  .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+  .btn-primary {
+    background: var(--green); color: #0A100D;
+    font-family: var(--sans); font-weight: 700; font-size: 0.95rem;
+    padding: 0.85rem 2rem; border-radius: 4px; border: none;
+    text-decoration: none; cursor: pointer; transition: opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+
+  .btn-ghost {
+    background: transparent; color: var(--text);
+    font-family: var(--sans); font-weight: 400; font-size: 0.95rem;
+    padding: 0.85rem 2rem; border-radius: 4px;
+    border: 1px solid var(--card-border);
+    text-decoration: none; cursor: pointer; transition: border-color 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--green-border); color: var(--green); }
+
+  /* TERMINAL */
+  .terminal {
+    max-width: 600px; margin: 5rem auto 0;
+    background: var(--bg2); border: 1px solid var(--card-border);
+    border-radius: 8px; overflow: hidden;
+  }
+  .terminal-bar {
+    background: var(--bg3); padding: 0.65rem 1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #FF5F56; }
+  .dot-y { background: #FFBD2E; }
+  .dot-g { background: #27C93F; }
+  .terminal-body { padding: 1.5rem 1.5rem 1.8rem; }
+  .t-line { font-family: var(--mono); font-size: 0.88rem; line-height: 2; }
+  .t-cmd { color: var(--green); }
+  .t-out { color: var(--muted); }
+  .t-highlight { color: var(--text); }
+  .t-cursor {
+    display: inline-block; width: 9px; height: 1.1em;
+    background: var(--green); vertical-align: text-bottom;
+    animation: blink 1.1s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* SECTIONS */
+  section { padding: 6rem 2.5rem; }
+  .section-inner { max-width: 900px; margin: 0 auto; }
+
+  .section-label {
+    font-family: var(--mono); font-size: 0.75rem; color: var(--green);
+    letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+    font-weight: 700; line-height: 1.2;
+    letter-spacing: -0.02em; margin-bottom: 1.25rem;
+  }
+
+  .divider {
+    border: none; border-top: 1px solid var(--card-border);
+    margin: 0;
+  }
+
+  /* WHO WE ARE */
+  .who { background: var(--bg2); }
+  .who p { color: var(--muted); font-size: 1.05rem; max-width: 680px; line-height: 1.9; margin-bottom: 1rem; }
+  .who p:last-child { margin-bottom: 0; }
+
+  .who-name {
+    font-family: var(--mono); font-size: 0.85rem;
+    background: var(--green-dim); border: 1px solid var(--green-border);
+    color: var(--green); display: inline-block;
+    padding: 0.15rem 0.6rem; border-radius: 3px; margin-bottom: 1.5rem;
+  }
+
+  /* FORMATS */
+  .formats { background: var(--bg); }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem; margin-top: 3rem;
+  }
+  .card {
+    background: var(--bg2); border: 1px solid var(--card-border);
+    border-radius: 8px; padding: 1.75rem 1.5rem;
+    transition: border-color 0.25s;
+  }
+  .card:hover { border-color: var(--green-border); }
+  .card-tag {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--green);
+    letter-spacing: 0.1em; margin-bottom: 0.75rem; opacity: 0.8;
+  }
+  .card h3 {
+    font-size: 1.2rem; font-weight: 700; margin-bottom: 0.35rem;
+    color: var(--text);
+  }
+  .card .card-dur {
+    font-size: 0.82rem; color: var(--muted); margin-bottom: 1.25rem;
+    font-family: var(--mono);
+  }
+  .card ul { list-style: none; }
+  .card ul li {
+    font-size: 0.9rem; color: var(--muted); padding: 0.35rem 0;
+    border-top: 1px solid var(--card-border);
+    display: flex; align-items: flex-start; gap: 0.5rem;
+  }
+  .card ul li::before { content: '→'; color: var(--green); flex-shrink: 0; margin-top: 1px; }
+
+  /* FOUNDER */
+  .founder { background: var(--bg2); }
+  .founder-inner {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4rem; align-items: start;
+  }
+  .founder-photo {
+    width: 100%; aspect-ratio: 3/4; object-fit: cover;
+    border-radius: 6px; border: 1px solid var(--card-border);
+    filter: grayscale(20%);
+  }
+  .founder-text h2 { margin-bottom: 1.25rem; }
+  .founder-text p { color: var(--muted); font-size: 1rem; line-height: 1.9; margin-bottom: 1rem; }
+  .founder-quote {
+    font-family: var(--mono); font-size: 0.9rem; color: var(--green);
+    border-left: 2px solid var(--green); padding-left: 1rem;
+    margin: 1.5rem 0; line-height: 1.7;
+  }
+  .founder-links { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
+  .link-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.88rem; font-weight: 500; color: var(--green);
+    border: 1px solid var(--green-border); border-radius: 4px;
+    padding: 0.5rem 1.1rem; text-decoration: none;
+    background: var(--green-dim); transition: opacity 0.2s;
+  }
+  .link-btn:hover { opacity: 0.8; }
+
+  /* CONTACT */
+  .contact { background: var(--bg); }
+  .contact-box {
+    background: var(--bg2); border: 1px solid var(--card-border);
+    border-radius: 8px; padding: 3rem; max-width: 600px;
+  }
+  .contact-box h2 { margin-bottom: 0.75rem; }
+  .contact-box p { color: var(--muted); margin-bottom: 2rem; }
+  .contact-box a {
+    font-family: var(--mono); font-size: 1rem; color: var(--green);
+    text-decoration: none; border-bottom: 1px solid var(--green-border);
+    padding-bottom: 1px;
+  }
+  .contact-box a:hover { border-color: var(--green); }
+  .contact-tag {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+    margin-top: 2rem; display: block;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--card-border);
+    padding: 2rem 2.5rem;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 1rem;
+  }
+  .footer-logo { font-family: var(--mono); font-size: 0.9rem; }
+  .footer-logo .iam { color: var(--green); }
+  .footer-logo .whoami { color: var(--muted); }
+  footer p { font-size: 0.82rem; color: var(--muted); }
+
+  @media (max-width: 680px) {
+    nav { padding: 1rem 1.25rem; }
+    .nav-links { display: none; }
+    .hero { padding: 7rem 1.25rem 4rem; }
+    section { padding: 4rem 1.25rem; }
+    .founder-inner { grid-template-columns: 1fr; gap: 2rem; }
+    .founder-photo { max-height: 340px; }
+    footer { flex-direction: column; text-align: center; }
+    .contact-box { padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">
+    <span class="iam">IAM</span><span class="whoami">Whoami</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#program">Program</a></li>
+    <li><a href="#founder">Founder</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a class="nav-cta" href="#contact">Get in touch</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-tag">whoami &mdash; Cloud and IT Career Training &mdash; New Orleans, LA</div>
+    <h1>We open the door to tech careers for people who were <span class="accent">never shown the entrance.</span></h1>
+    <p class="hero-sub">IAM Whoami is a free career training program built for people from non-traditional backgrounds who deserve access to high-paying technology careers.</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="#program">See the program</a>
+      <a class="btn-ghost" href="#contact">Partner with us</a>
+    </div>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="dot dot-r"></span>
+        <span class="dot dot-y"></span>
+        <span class="dot dot-g"></span>
+      </div>
+      <div class="terminal-body">
+        <div class="t-line"><span class="t-cmd">$ whoami</span></div>
+        <div class="t-line"><span class="t-highlight">christopher_catchings</span></div>
+        <div class="t-line" style="margin-top:0.5rem"><span class="t-cmd">$ id</span></div>
+        <div class="t-line"><span class="t-out">uid=1000(founder) groups=1000(iam_whoami),</span></div>
+        <div class="t-line"><span class="t-out">4(enterprise_cybersecurity), 27(new_orleans)</span></div>
+        <div class="t-line" style="margin-top:0.5rem"><span class="t-cmd">$ echo $MISSION</span></div>
+        <div class="t-line"><span class="t-highlight">open the door &mdash; pass the map &mdash; change the access</span></div>
+        <div class="t-line" style="margin-top:0.5rem"><span class="t-cmd">$ <span class="t-cursor"></span></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- WHO WE ARE -->
+<section class="who" id="about">
+  <div class="section-inner">
+    <p class="section-label">// who we are</p>
+    <div class="who-name">pronounced: "I am, who am I"</div>
+    <h2>The name is the mission.</h2>
+    <p>IAM is Identity and Access Management — the system that controls who gets in and what they are authorized to do. Whoami is a real Linux command that tells you exactly who you are in the system. Together they ask the question this program is built around: who are you, and what are you now authorized to do?</p>
+    <p>IAM Whoami opens the door to technology careers for people who were never shown the entrance. No prior tech experience required. No cost to participants. Just clarity, real skills, and a path forward.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- PROGRAM -->
+<section class="formats" id="program">
+  <div class="section-inner">
+    <p class="section-label">// program format options</p>
+    <h2>Three formats. One goal: leaving with something real.</h2>
+    <div class="cards">
+      <div class="card">
+        <p class="card-tag">01 &mdash; The Spark</p>
+        <h3>The Spark</h3>
+        <p class="card-dur">1 Session &mdash; 90 minutes</p>
+        <ul>
+          <li>Tech roles accessible from non-traditional paths</li>
+          <li>Salary reality and what these jobs actually pay</li>
+          <li>Live Q&amp;A with a working tech professional</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-tag">02 &mdash; The Series</p>
+        <h3>The Series</h3>
+        <p class="card-dur">3 Sessions &mdash; One per week</p>
+        <ul>
+          <li>The tech industry and available roles</li>
+          <li>Your story, your LinkedIn, your pitch</li>
+          <li>Job search skills and the path forward</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-tag">03 &mdash; The Full Program</p>
+        <h3>The Full Program</h3>
+        <p class="card-dur">8 Sessions &mdash; 8 Weeks</p>
+        <ul>
+          <li>Career training, identity, and job search skills</li>
+          <li>Hands-on AWS cloud infrastructure project</li>
+          <li>Live portfolio deployed at your own domain</li>
+          <li>Certification in progress and elevator pitch by heart</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- FOUNDER -->
+<section class="founder" id="founder">
+  <div class="section-inner">
+    <p class="section-label">// about the founder</p>
+    <div class="founder-inner">
+      <img class="founder-photo" src="founder.jpg" alt="Christopher Catchings, Founder of IAM Whoami">
+      <div class="founder-text">
+        <h2>I built my roadmap in the dark.</h2>
+        <p>I'm Christopher Catchings, a Technical Account Manager managing a $38 million global book of business in enterprise cybersecurity. I've worked with top brands including Spotify, Bank of America, Bausch and Lomb, Turo, and WWE.</p>
+        <p>My path into tech was not straight. I started in film production, worked in healthcare, and built my way in through curiosity and discipline. I grew up in Jackson, Mississippi, a city with a deep tradition of civic engagement, intellectual pride, and activism.</p>
+        <div class="founder-quote">IAM Whoami is that roadmap handed to the next person who needs it.</div>
+        <div class="founder-links">
+          <a class="link-btn" href="https://www.linkedin.com/in/christophercatchings" target="_blank">↗ LinkedIn Profile</a>
+          <a class="link-btn" href="https://www.linkedin.com/company/iamwhoami" target="_blank">↗ IAM Whoami Page</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="section-inner">
+    <p class="section-label">// get in touch</p>
+    <div class="contact-box">
+      <h2>Bring IAM Whoami to your organization.</h2>
+      <p>Whether you represent a library, a faith community, a workforce program, or a company looking for entry level tech talent, reach out and let's talk.</p>
+      <a href="mailto:christopher@iamwhoami.org">christopher@iamwhoami.org</a>
+      <span class="contact-tag">// All sessions delivered via Google Meet &mdash; New Orleans, LA</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo"><span class="iam">IAM</span><span class="whoami">Whoami</span></div>
+  <p>&copy; 2024 IAM Whoami &mdash; New Orleans, LA &mdash; iamwhoami.org</p>
+</footer>
+
+</body>
+</html>
